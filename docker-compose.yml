@@ -33,5 +33,28 @@ services:
       timeout: 5s
       retries: 10
 
+  app:
+    build: .
+    container_name: ledger-app
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/ledger_db
+      DB_USERNAME: ledger_user
+      DB_PASSWORD: ledger_password
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ledger_user
+      RABBITMQ_PASSWORD: ledger_password
+      JWT_SECRET_BASE64: ${JWT_SECRET_BASE64:?Set JWT_SECRET_BASE64 before starting the application}
+      BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USERNAME:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
 volumes:
   ledger_postgres_data:

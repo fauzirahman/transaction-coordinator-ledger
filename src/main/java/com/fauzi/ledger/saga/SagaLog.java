@@ -66,6 +66,11 @@ public class SagaLog {
         this.completedAt = LocalDateTime.now();
     }
 
+    public void markCompensated() {
+        this.stepStatus = "COMPENSATED";
+        this.completedAt = LocalDateTime.now();
+    }
+
     public UUID getId() {
         return id;
     }
@@ -92,5 +97,9 @@ public class SagaLog {
 
     public LocalDateTime getCompletedAt() {
         return completedAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }

@@ -115,6 +115,10 @@ public class Transfer {
         return failureReason;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
     public void markProcessing() {
         this.status = "PROCESSING";
     }
@@ -125,6 +129,11 @@ public class Transfer {
 
     public void markFailed(String reason) {
         this.status = "FAILED";
+        this.failureReason = reason;
+    }
+
+    public void markCompensated(String reason) {
+        this.status = "COMPENSATED";
         this.failureReason = reason;
     }
 }
