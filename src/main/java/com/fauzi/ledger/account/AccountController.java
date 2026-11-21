@@ -1,8 +1,10 @@
 package com.fauzi.ledger.account;
 
+import com.fauzi.ledger.account.dto.AccountSummaryResponse;
 import com.fauzi.ledger.transfer.TransferNotFoundException;
 import com.fauzi.ledger.transfer.TransferService;
 import com.fauzi.ledger.transfer.dto.LedgerEntryResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/accounts")
+@SecurityRequirement(name = "bearerAuth")
 public class AccountController {
 
     private final AccountRepository accountRepository;
@@ -28,6 +31,27 @@ public class AccountController {
     ) {
         this.accountRepository = accountRepository;
         this.ledgerEntryRepository = ledgerEntryRepository;
+    }
+
+    @GetMapping
+    @Transactional(readOnly = true)
+    public List<AccountSummaryResponse> getAccounts(@AuthenticationPrincipal Jwt jwt) {
+        var roles = jwt.getClaimAsStringList("roles");
+        List<Account> accounts = roles != null && roles.contains("ADMIN")
+                ? accountRepository.findAllByOrderByCreatedAtDesc()
+                : accountRepository.findAllByOwnerUserIdOrderByCreatedAtDesc(
+                        UUID.fromString(jwt.getSubject())
+                );
+        return accounts.stream()
+                .map(account -> new AccountSummaryResponse(
+                        account.getId(),
+                        account.getAccountNumber(),
+                        account.getAccountName(),
+                        account.getCurrency(),
+                        account.getBalance(),
+                        account.getStatus()
+                ))
+                .toList();
     }
 
     @GetMapping("/{id}/balance")

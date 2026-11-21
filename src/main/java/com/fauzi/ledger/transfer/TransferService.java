@@ -12,6 +12,7 @@ import com.fauzi.ledger.transfer.dto.CreateTransferRequest;
 import com.fauzi.ledger.transfer.dto.LedgerEntryResponse;
 import com.fauzi.ledger.transfer.dto.TransferDetailResponse;
 import com.fauzi.ledger.transfer.dto.TransferResponse;
+import com.fauzi.ledger.transfer.dto.TransferSummaryResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -126,6 +127,13 @@ public class TransferService {
                 .orElseThrow(() -> new TransferNotFoundException("Transfer not found"));
         requireTransferAccess(transfer, actorUserId, admin);
         return toDetail(transfer);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TransferSummaryResponse> list(UUID actorUserId, boolean admin) {
+        return admin
+                ? transferRepository.findAllSummaries()
+                : transferRepository.findSummariesVisibleToOwner(actorUserId);
     }
 
     private void requireTransferAccess(Transfer transfer, UUID actorUserId, boolean admin) {

@@ -2,6 +2,7 @@ package com.fauzi.ledger.saga;
 
 import com.fauzi.ledger.transfer.TransferNotFoundException;
 import com.fauzi.ledger.transfer.TransferRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/saga/log")
+@SecurityRequirement(name = "bearerAuth")
 public class SagaController {
 
     private final SagaLogRepository sagaLogRepository;
